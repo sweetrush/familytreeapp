@@ -1,0 +1,26 @@
+<about>
+This App is to help a family create a family tree 
+of there family to display the links and relatives
+in a way to see the whole family
+</about>
+
+<webtechology>
+- html used to provide a UI
+- CSS   used to provide for styles 
+- JS    for logic and fuction support 
+- JSON file to store the mappings of the Family tree
+</webtechology>
+
+<UI> 
+The Ui should have 2 columns or areas 
+- the Side bar for using to add family entity and Information 
+   the elements of the Attribute should be. 
+  - Name 
+  - Date of Birth 
+  - Location 
+  - Father Link - Select father if avaible
+  - Month Link  - select mother if avaible 
+
+- The tree display are shows the tree with the current loaded elements and showing links of each family member 
+<UI>
+

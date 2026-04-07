@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Tree App</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Family Tree</h1>
+        <p>Create and visualize your family connections</p>
+    </header>
+
+    <main class="container">
+        <!-- Sidebar Form -->
+        <aside class="sidebar">
+            <h2>Add Family Member</h2>
+            <form id="addMemberForm">
+                <input type="text" id="name" placeholder="Name" required>
+                <input type="date" id="dob" placeholder="Date of Birth">
+                <input type="text" id="location" placeholder="Location">
+
+                <div class="form-group">
+                    <label for="father">Father:</label>
+                    <select id="father">
+                        <option value="">Select father</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="mother">Mother:</label>
+                    <select id="mother">
+                        <option value="">Select mother</option>
+                    </select>
+                </div>
+
+                <button type="submit">Add Member</button>
+            </form>
+        </aside>
+
+        <!-- Tree Display Area -->
+        <section class="tree-container">
+            <h2>Family Tree</h2>
+
+            <!-- Import/Export controls -->
+            <div class="tree-controls">
+                <button id="exportJSON" class="action-btn">Export as JSON</button>
+                <button id="exportCSV" class="action-btn">Export as CSV</button>
+                <label for="importFile" class="action-btn">Import JSON</label>
+                <input type="file" id="importFile" accept=".json" style="display: none;">
+            </div>
+
+            <div id="treeView"></div>
+        </section>
+    </main>
+
+    <script src="js/data.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/tree.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/importexport.js"></script>
+</body>
+</html>
