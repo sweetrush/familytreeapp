@@ -1,74 +1,79 @@
 class ImportExportManager {
     constructor() {
-        this.dataManager = dataManager;
+        this.apiBase = '.';
     }
 
     // Export family data to JSON
-    exportToJSON() {
-        const data = this.dataManager.getAllMembers();
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `family-tree-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    async exportToJSON() {
+        try {
+            const response = await fetch(`${this.apiBase}/api/import_export.php?format=json`);
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `family-tree-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else {
+                alert('Failed to export data');
+            }
+        } catch (error) {
+            console.error('Error exporting JSON:', error);
+            alert('Failed to export data');
+        }
     }
 
     // Import family data from JSON file
-    importFromJSON(file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (Array.isArray(data)) {
-                    // Clear existing data
-                    this.dataManager.members = [];
-                    // Add imported members
-                    data.forEach(member => {
-                        this.dataManager.addMember(
-                            member.name,
-                            member.dob,
-                            member.location,
-                            member.fatherId,
-                            member.motherId
-                        );
-                    });
-                    alert('Import successful! ' + data.length + ' members added.');
-                } else {
-                    alert('Invalid file format. Please select a JSON file with family data.');
-                }
-            } catch (error) {
-                alert('Error importing file: ' + error.message);
+    async importFromJSON(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await fetch(`${this.apiBase}/api/import_export.php`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert('Import successful! ' + result.count + ' members added.');
+                // Reload data
+                await dataManager.loadData();
+                uiManager.renderTree();
+            } else {
+                const error = await response.json();
+                alert('Import failed: ' + error.error);
             }
-        };
-        reader.readAsText(file);
+        } catch (error) {
+            console.error('Error importing file:', error);
+            alert('Failed to import file');
+        }
     }
 
     // Export data as CSV
-    exportToCSV() {
-        const members = this.dataManager.getAllMembers();
-        if (members.length === 0) {
-            alert('No data to export');
-            return;
+    async exportToCSV() {
+        try {
+            const response = await fetch(`${this.apiBase}/api/import_export.php?format=csv`);
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `family-tree-${new Date().toISOString().split('T')[0]}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else {
+                alert('Failed to export data');
+            }
+        } catch (error) {
+            console.error('Error exporting CSV:', error);
+            alert('Failed to export data');
         }
-
-        let csvContent = 'ID,Name,Date of Birth,Location,Father ID,Mother ID,Created At\n';
-        members.forEach(member => {
-            csvContent += `${member.id},"${member.name}",${member.dob || ''},"${member.location || ''}",${member.fatherId || ''},${member.motherId || ''},${member.createdAt}\n`;
-        });
-
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `family-tree-${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
     }
 }
 

@@ -14,10 +14,10 @@ class UIManager {
     init() {
         this.setupForm();
         this.setupImportExport();
+        this.setupNodeActions();
         this.updateParentDropdowns();
         this.renderTree();
         this.setupSearch();
-        this.setupTreeActions();
     }
 
     // Setup form submission
@@ -58,7 +58,7 @@ class UIManager {
     }
 
     // Handle form submission
-    handleSubmit() {
+    async handleSubmit() {
         const name = document.getElementById('name').value;
         const dob = document.getElementById('dob').value;
         const location = document.getElementById('location').value;
@@ -66,11 +66,11 @@ class UIManager {
         const motherId = this.motherSelect.value || null;
 
         if (name) {
-            dataManager.addMember(name, dob, location, fatherId, motherId);
+            await dataManager.addMember(name, dob, location, fatherId, motherId);
             this.updateParentDropdowns();
             this.renderTree();
             this.form.reset();
-            this.searchInput.value = '';
+            if (this.searchInput) this.searchInput.value = '';
         }
     }
 
@@ -95,7 +95,7 @@ class UIManager {
         });
     }
 
-    // Render the family tree using SVG visualizer
+    // Render the family tree using vis-network
     renderTree(membersToRender = null) {
         const members = membersToRender || dataManager.getAllMembers();
         treeVisualizer.render(members);
@@ -108,30 +108,46 @@ class UIManager {
         this.searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
             const members = dataManager.getAllMembers();
+
+            if (!query) {
+                this.renderTree(members);
+                return;
+            }
+
             const filtered = members.filter(member =>
                 member.name.toLowerCase().includes(query) ||
                 (member.location && member.location.toLowerCase().includes(query))
             );
             this.renderTree(filtered);
+
+            // Focus view on matching nodes
+            if (filtered.length > 0) {
+                treeVisualizer.fitToNodes(filtered.map(m => m.id));
+            }
         });
     }
 
-    // Setup tree actions (edit/delete)
-    setupTreeActions() {
-        this.treeView.addEventListener('click', (e) => {
-            const target = e.target;
+    // Setup Edit and Delete buttons below the tree
+    setupNodeActions() {
+        const editBtn = document.getElementById('editNodeBtn');
+        const deleteBtn = document.getElementById('deleteNodeBtn');
 
-            if (target.classList.contains('delete-btn')) {
-                const id = target.dataset.id;
-                if (confirm('Delete this family member?')) {
-                    dataManager.deleteMember(id);
+        editBtn.addEventListener('click', () => {
+            if (treeVisualizer.selectedNodeId) {
+                this.showEditModal(treeVisualizer.selectedNodeId);
+            }
+        });
+
+        deleteBtn.addEventListener('click', async () => {
+            if (treeVisualizer.selectedNodeId) {
+                const member = dataManager.getMemberById(treeVisualizer.selectedNodeId);
+                if (member && confirm('Delete "' + member.name + '"?')) {
+                    await dataManager.deleteMember(treeVisualizer.selectedNodeId);
+                    treeVisualizer.hideActions();
                     this.updateParentDropdowns();
                     this.renderTree();
-                    this.searchInput.value = '';
+                    if (this.searchInput) this.searchInput.value = '';
                 }
-            } else if (target.classList.contains('edit-btn')) {
-                const id = target.dataset.id;
-                this.showEditModal(id);
             }
         });
     }
@@ -142,22 +158,20 @@ class UIManager {
         if (!member) return;
 
         const name = prompt('Edit name:', member.name);
-        if (name === null) return; // User cancelled
+        if (name === null) return;
 
-        const dob = prompt('Edit date of birth (YYYY-MM-DD):', member.dob || '');
-        const location = prompt('Edit location:', member.location || '');
+        const dob = prompt('Date of birth (YYYY-MM-DD):', member.dob || '');
+        const location = prompt('Location:', member.location || '');
 
-        // For simplicity, we're not editing parent relationships in this version
-        if (name !== null) {
-            dataManager.updateMember(id, {
-                name: name || member.name,
-                dob: dob || member.dob,
-                location: location || member.location
-            });
-            this.updateParentDropdowns();
-            this.renderTree();
-            this.searchInput.value = '';
-        }
+        dataManager.updateMember(id, {
+            name: name || member.name,
+            dob: dob || member.dob,
+            location: location || member.location
+        });
+        this.updateParentDropdowns();
+        this.renderTree();
+        treeVisualizer.hideActions();
+        if (this.searchInput) this.searchInput.value = '';
     }
 }
 

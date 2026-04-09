@@ -1,1 +1,65 @@
-[]
+[
+    {
+        "id": "69d76eacaa57f",
+        "name": "dd",
+        "dob": "",
+        "location": "dd",
+        "fatherId": null,
+        "motherId": null,
+        "createdAt": "2026-04-09T09:17:32+00:00"
+    },
+    {
+        "id": "69d76eb41ba37",
+        "name": "dd",
+        "dob": "",
+        "location": "dddd",
+        "fatherId": null,
+        "motherId": null,
+        "createdAt": "2026-04-09T09:17:40+00:00"
+    },
+    {
+        "id": "69d77106d1966",
+        "name": "wwerw",
+        "dob": "",
+        "location": "wwerqwe",
+        "fatherId": "69d76eacaa57f",
+        "motherId": null,
+        "createdAt": "2026-04-09T09:27:34+00:00"
+    },
+    {
+        "id": "69d7724956c7e",
+        "name": "Anevili Sioa Loia",
+        "dob": "",
+        "location": "Samoa",
+        "fatherId": null,
+        "motherId": null,
+        "createdAt": "2026-04-09T09:32:57+00:00"
+    },
+    {
+        "id": "69d77260601f9",
+        "name": "Faatuuala Loia ",
+        "dob": "",
+        "location": "Samoa",
+        "fatherId": null,
+        "motherId": null,
+        "createdAt": "2026-04-09T09:33:20+00:00"
+    },
+    {
+        "id": "69d77284cba8e",
+        "name": "Suetena Loia Faatuuala",
+        "dob": "",
+        "location": "",
+        "fatherId": "69d77260601f9",
+        "motherId": "69d7724956c7e",
+        "createdAt": "2026-04-09T09:33:56+00:00"
+    },
+    {
+        "id": "69d772a54bab2",
+        "name": "Sioa Fale",
+        "dob": "",
+        "location": "Samoa",
+        "fatherId": null,
+        "motherId": null,
+        "createdAt": "2026-04-09T09:34:29+00:00"
+    }
+]

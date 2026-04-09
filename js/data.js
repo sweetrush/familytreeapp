@@ -1,20 +1,17 @@
 class DataManager {
     constructor() {
-        this.storageKey = 'familyTreeData';
+        this.apiBase = '.';
         this.members = [];
-        this.loadData();
     }
 
-    // Load data from localStorage
-    loadData() {
+    // Load data from PHP API
+    async loadData() {
         try {
-            const data = localStorage.getItem(this.storageKey);
-            if (data) {
-                this.members = JSON.parse(data);
+            const response = await fetch(`${this.apiBase}/api/get_members.php`);
+            if (response.ok) {
+                this.members = await response.json();
             } else {
-                // Initialize with empty array
                 this.members = [];
-                this.saveData();
             }
         } catch (error) {
             console.error('Error loading data:', error);
@@ -22,35 +19,72 @@ class DataManager {
         }
     }
 
-    // Save data to localStorage
-    saveData() {
-        try {
-            localStorage.setItem(this.storageKey, JSON.stringify(this.members, null, 2));
-        } catch (error) {
-            console.error('Error saving data:', error);
-        }
-    }
-
     // Add a new family member
-    addMember(name, dob, location, fatherId = null, motherId = null) {
-        const newMember = {
-            id: this.generateId(),
-            name,
-            dob,
-            location,
-            fatherId,
-            motherId,
-            createdAt: new Date().toISOString()
-        };
+    async addMember(name, dob, location, fatherId = null, motherId = null) {
+        try {
+            const response = await fetch(`${this.apiBase}/api/add_member.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, dob, location, fatherId, motherId })
+            });
 
-        this.members.push(newMember);
-        this.saveData();
-        return newMember;
+            if (response.ok) {
+                const newMember = await response.json();
+                this.members.push(newMember);
+                return newMember;
+            }
+        } catch (error) {
+            console.error('Error adding member:', error);
+        }
+        return null;
     }
 
-    // Generate unique ID
-    generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    // Update a member
+    async updateMember(id, updates) {
+        try {
+            const response = await fetch(`${this.apiBase}/api/update_member.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id, ...updates })
+            });
+
+            if (response.ok) {
+                const updated = await response.json();
+                const index = this.members.findIndex(m => m.id === id);
+                if (index !== -1) {
+                    this.members[index] = updated;
+                }
+                return updated;
+            }
+        } catch (error) {
+            console.error('Error updating member:', error);
+        }
+        return null;
+    }
+
+    // Delete a member
+    async deleteMember(id) {
+        try {
+            const response = await fetch(`${this.apiBase}/api/delete_member.php`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id })
+            });
+
+            if (response.ok) {
+                this.members = this.members.filter(m => m.id !== id);
+                return true;
+            }
+        } catch (error) {
+            console.error('Error deleting member:', error);
+        }
+        return false;
     }
 
     // Get all members
@@ -68,23 +102,6 @@ class DataManager {
         return this.members.filter(m =>
             m.fatherId === null && m.motherId === null
         );
-    }
-
-    // Delete a member by ID
-    deleteMember(id) {
-        this.members = this.members.filter(m => m.id !== id);
-        this.saveData();
-    }
-
-    // Update a member
-    updateMember(id, updates) {
-        const index = this.members.findIndex(m => m.id === id);
-        if (index !== -1) {
-            this.members[index] = { ...this.members[index], ...updates };
-            this.saveData();
-            return this.members[index];
-        }
-        return null;
     }
 }
 

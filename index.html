@@ -45,6 +45,7 @@
 
             <!-- Import/Export controls -->
             <div class="tree-controls">
+                <input type="text" id="search" placeholder="Search by name or location..." class="search-input">
                 <button id="exportJSON" class="action-btn">Export as JSON</button>
                 <button id="exportCSV" class="action-btn">Export as CSV</button>
                 <label for="importFile" class="action-btn">Import JSON</label>
@@ -52,9 +53,15 @@
             </div>
 
             <div id="treeView"></div>
+            <div id="nodeActions" style="display:none; margin-top:10px; padding:10px; background:#f0f0f0; border-radius:8px;">
+                <span id="selectedName" style="font-weight:bold; margin-right:10px;"></span>
+                <button id="editNodeBtn" style="background:#28a745; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; margin-right:8px;">Edit</button>
+                <button id="deleteNodeBtn" style="background:#dc3545; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Delete</button>
+            </div>
         </section>
     </main>
 
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <script src="js/data.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/tree.js"></script>
